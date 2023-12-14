@@ -122,29 +122,8 @@ class ProcessorMixin(PushToHubMixin):
         if "feature_extractor" in output:
             del output["feature_extractor"]
 
-        # TODO: deal the following with a generic approach - by checking the types of the values.
-
-        # Some old processor class (for example, `Wav2Vec2Processor`) have this attribute
-        if "current_processor" in output:
-            del output["current_processor"]
-
-        # For `MgpstrProcessor`
-        if "char_tokenizer" in output:
-            del output["char_tokenizer"]
-        if "bpe_tokenizer" in output:
-            del output["bpe_tokenizer"]
-        if "wp_tokenizer" in output:
-            del output["wp_tokenizer"]
-
-        # For `InstructBlipProcessor`
-        # TODO: update custom `from_pretrained`
-        if "qformer_tokenizer" in output:
-            del output["qformer_tokenizer"]
-
-        # For `Wav2Vec2ProcessorWithLM`
-        # TODO: update custom `from_pretrained`
-        if "decoder" in output:
-            del output["decoder"]
+        # Some attributes have different names but containing objects that are not simple strings
+        output = {k: v for k, v in output.items() if not isinstance(v, PushToHubMixin)}
 
         return output
 
@@ -461,9 +440,9 @@ class ProcessorMixin(PushToHubMixin):
 
         args = cls._get_arguments_from_pretrained(pretrained_model_name_or_path, **kwargs)
 
-        # Existing processors on the Hub don't have `processor_config.json`, but we need to keep `from_pretrained` work.
-        # This is not ideal (for models added in the future) as it might hide some bug/error silently.
-        # TODO: How to deal with this better and safer. Can we use timestamp as a condition to determine this?
+        # Existing processors on the Hub created before #27761 being merged don't have `processor_config.json` (if not
+        # updated afterward), and we need to keep `from_pretrained` work. So here it fallbacks to the empty dict.
+        # However, for models added in the future, we won't get the expected error if this file is missing.
         try:
             processor_dict, kwargs = cls.get_processor_dict(pretrained_model_name_or_path, **kwargs)
         except EnvironmentError as e:
