@@ -123,7 +123,11 @@ class ProcessorMixin(PushToHubMixin):
             del output["feature_extractor"]
 
         # Some attributes have different names but containing objects that are not simple strings
-        output = {k: v for k, v in output.items() if not (isinstance(v, PushToHubMixin) or v.__class__.__name__ == "BeamSearchDecoderCTC")}
+        output = {
+            k: v
+            for k, v in output.items()
+            if not (isinstance(v, PushToHubMixin) or v.__class__.__name__ == "BeamSearchDecoderCTC")
+        }
 
         return output
 
