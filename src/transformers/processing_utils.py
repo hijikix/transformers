@@ -239,6 +239,8 @@ class ProcessorMixin(PushToHubMixin):
                 token=kwargs.get("token"),
             )
 
+        return [output_processor_file]
+
     @classmethod
     def get_processor_dict(
         cls, pretrained_model_name_or_path: Union[str, os.PathLike], **kwargs
