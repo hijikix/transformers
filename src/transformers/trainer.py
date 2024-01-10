@@ -2701,6 +2701,9 @@ class Trainer:
         """
         print('compute_loss called!!!---------')
         print('inputs', inputs)
+        print("inputs['input_ids'].size()", inputs['input_ids'].size())
+        print("inputs['attention_mask'].size()", inputs['attention_mask'].size())
+        print("inputs['labels'].size()", inputs['labels'].size())
         if self.label_smoother is not None and "labels" in inputs:
             labels = inputs.pop("labels")
         else:
