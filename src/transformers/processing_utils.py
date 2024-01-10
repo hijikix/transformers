@@ -111,8 +111,10 @@ class ProcessorMixin(PushToHubMixin):
         # Get the kwargs in `__init__`.
         sig = inspect.signature(self.__init__)
         # Only save the attributes that are presented in the kwargs of `__init__`.
-        attrs_to_save = [x for x in sig.parameters]
+        attrs_to_save = sig.parameters
+        # Don't save attributes like `tokenizer`, `image processor` etc.
         attrs_to_save = [x for x in attrs_to_save if x not in self.__class__.attributes]
+        # extra attributes to be kept
         attrs_to_save += ["auto_map"]
 
         output = {k: v for k, v in output.items() if k in attrs_to_save}
