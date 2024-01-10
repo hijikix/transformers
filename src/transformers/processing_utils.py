@@ -111,7 +111,11 @@ class ProcessorMixin(PushToHubMixin):
         # Get the kwargs in `__init__`.
         sig = inspect.signature(self.__init__)
         # Only save the attributes that are presented in the kwargs of `__init__`.
-        output = {k: v for k, v in output.items() if k in sig.parameters and k not in self.__class__.attributes}
+        attrs_to_save = [x for x in sig.parameters]
+        attrs_to_save = [x for x in attrs_to_save if x not in self.__class__.attributes]
+        attrs_to_save += ["auto_map"]
+
+        output = {k: v for k, v in output.items() if k in attrs_to_save}
 
         output["processor_class"] = self.__class__.__name__
 
@@ -207,6 +211,7 @@ class ProcessorMixin(PushToHubMixin):
         if self._auto_class is not None:
             attrs = [getattr(self, attribute_name) for attribute_name in self.attributes]
             configs = [(a.init_kwargs if isinstance(a, PreTrainedTokenizerBase) else a) for a in attrs]
+            configs.append(self)
             custom_object_save(self, save_directory, config=configs)
 
         for attribute_name in self.attributes:
@@ -366,6 +371,9 @@ class ProcessorMixin(PushToHubMixin):
         # We have to pop up some unused (but specific) arguments to make it work.
         if "processor_class" in processor_dict:
             del processor_dict["processor_class"]
+
+        if "auto_map" in processor_dict:
+            del processor_dict["auto_map"]
 
         processor = cls(*args, **processor_dict)
 
