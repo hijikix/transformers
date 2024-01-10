@@ -113,7 +113,7 @@ class ProcessorMixin(PushToHubMixin):
         # Only save the attributes that are presented in the kwargs of `__init__`.
         output = {k: v for k, v in output.items() if k in sig.parameters and k not in self.__class__.attributes}
 
-        output["processor_type"] = self.__class__.__name__
+        output["processor_class"] = self.__class__.__name__
 
         if "tokenizer" in output:
             del output["tokenizer"]
@@ -364,8 +364,8 @@ class ProcessorMixin(PushToHubMixin):
 
         # Unlike image processors or feature extractors whose `__init__` accept `kwargs`, processor don't have `kwargs`.
         # We have to pop up some unused (but specific) arguments to make it work.
-        if "processor_type" in processor_dict:
-            del processor_dict["processor_type"]
+        if "processor_class" in processor_dict:
+            del processor_dict["processor_class"]
 
         processor = cls(*args, **processor_dict)
 

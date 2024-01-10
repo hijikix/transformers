@@ -24,7 +24,6 @@ from transformers.testing_utils import check_json_file_has_correct_format, requi
 @require_torch
 class ProcessorTesterMixin:
     processor_class = None
-    _attributes_added_during_saving = ["processor_type"]
 
     def prepare_processor_dict(self):
         return {}
