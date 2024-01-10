@@ -1832,6 +1832,8 @@ class Trainer:
                     self.control = self.callback_handler.on_step_begin(args, self.state, self.control)
 
                 with self.accelerator.accumulate(model):
+                    print("self.training_step(model, inputs)")
+                    print("step", step)
                     tr_loss_step = self.training_step(model, inputs)
 
                 if (
@@ -2698,6 +2700,7 @@ class Trainer:
         Subclass and override for custom behavior.
         """
         print('compute_loss called!!!---------')
+        print('inputs', inputs)
         if self.label_smoother is not None and "labels" in inputs:
             labels = inputs.pop("labels")
         else:
