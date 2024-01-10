@@ -244,22 +244,25 @@ class AutoProcessor:
             if "AutoProcessor" in config_dict.get("auto_map", {}):
                 processor_auto_map = config_dict["auto_map"]["AutoProcessor"]
 
-        # If not found, let's check whether the processor class is saved in an image processor config
-        preprocessor_config_file = get_file_from_repo(
-            pretrained_model_name_or_path, FEATURE_EXTRACTOR_NAME, **get_file_from_repo_kwargs
-        )
-        if preprocessor_config_file is not None:
-            config_dict, _ = ImageProcessingMixin.get_image_processor_dict(pretrained_model_name_or_path, **kwargs)
-            processor_class = config_dict.get("processor_class", None)
-            if "AutoProcessor" in config_dict.get("auto_map", {}):
-                processor_auto_map = config_dict["auto_map"]["AutoProcessor"]
+        if processor_class is None:
+            # If not found, let's check whether the processor class is saved in an image processor config
+            preprocessor_config_file = get_file_from_repo(
+                pretrained_model_name_or_path, FEATURE_EXTRACTOR_NAME, **get_file_from_repo_kwargs
+            )
+            if preprocessor_config_file is not None:
+                config_dict, _ = ImageProcessingMixin.get_image_processor_dict(pretrained_model_name_or_path, **kwargs)
+                processor_class = config_dict.get("processor_class", None)
+                if "AutoProcessor" in config_dict.get("auto_map", {}):
+                    processor_auto_map = config_dict["auto_map"]["AutoProcessor"]
 
-        # If not found, let's check whether the processor class is saved in a feature extractor config
-        if preprocessor_config_file is not None and processor_class is None:
-            config_dict, _ = FeatureExtractionMixin.get_feature_extractor_dict(pretrained_model_name_or_path, **kwargs)
-            processor_class = config_dict.get("processor_class", None)
-            if "AutoProcessor" in config_dict.get("auto_map", {}):
-                processor_auto_map = config_dict["auto_map"]["AutoProcessor"]
+            # If not found, let's check whether the processor class is saved in a feature extractor config
+            if preprocessor_config_file is not None and processor_class is None:
+                config_dict, _ = FeatureExtractionMixin.get_feature_extractor_dict(
+                    pretrained_model_name_or_path, **kwargs
+                )
+                processor_class = config_dict.get("processor_class", None)
+                if "AutoProcessor" in config_dict.get("auto_map", {}):
+                    processor_auto_map = config_dict["auto_map"]["AutoProcessor"]
 
         if processor_class is None:
             # Next, let's check whether the processor class is saved in a tokenizer

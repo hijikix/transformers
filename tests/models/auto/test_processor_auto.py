@@ -42,7 +42,7 @@ from transformers import (
 )
 from transformers.testing_utils import TOKEN, USER, get_tests_dir, is_staging_test
 from transformers.tokenization_utils import TOKENIZER_CONFIG_FILE
-from transformers.utils import FEATURE_EXTRACTOR_NAME, is_tokenizers_available
+from transformers.utils import FEATURE_EXTRACTOR_NAME, PROCESSOR_NAME, is_tokenizers_available
 
 
 sys.path.append(str(Path(__file__).parent.parent.parent.parent / "utils"))
@@ -91,6 +91,28 @@ class AutoFeatureExtractorTest(unittest.TestCase):
 
         self.assertIsInstance(processor, Wav2Vec2Processor)
 
+    def test_processor_from_processor_class(self):
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            feature_extractor = Wav2Vec2FeatureExtractor()
+            tokenizer = AutoTokenizer.from_pretrained("facebook/wav2vec2-base-960h")
+
+            processor = Wav2Vec2Processor(feature_extractor, tokenizer)
+
+            # save in new folder
+            processor.save_pretrained(tmpdirname)
+
+            # drop `processor_class` in tokenizer
+            with open(os.path.join(tmpdirname, TOKENIZER_CONFIG_FILE), "r") as f:
+                config_dict = json.load(f)
+                config_dict.pop("processor_class")
+
+            with open(os.path.join(tmpdirname, TOKENIZER_CONFIG_FILE), "w") as f:
+                f.write(json.dumps(config_dict))
+
+            processor = AutoProcessor.from_pretrained(tmpdirname)
+
+        self.assertIsInstance(processor, Wav2Vec2Processor)
+
     def test_processor_from_feat_extr_processor_class(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
             feature_extractor = Wav2Vec2FeatureExtractor()
@@ -100,6 +122,14 @@ class AutoFeatureExtractorTest(unittest.TestCase):
 
             # save in new folder
             processor.save_pretrained(tmpdirname)
+
+            # drop `processor_class` in processor
+            with open(os.path.join(tmpdirname, PROCESSOR_NAME), "r") as f:
+                config_dict = json.load(f)
+                config_dict.pop("processor_class")
+
+            with open(os.path.join(tmpdirname, PROCESSOR_NAME), "w") as f:
+                f.write(json.dumps(config_dict))
 
             # drop `processor_class` in tokenizer
             with open(os.path.join(tmpdirname, TOKENIZER_CONFIG_FILE), "r") as f:
@@ -122,6 +152,14 @@ class AutoFeatureExtractorTest(unittest.TestCase):
 
             # save in new folder
             processor.save_pretrained(tmpdirname)
+
+            # drop `processor_class` in processor
+            with open(os.path.join(tmpdirname, PROCESSOR_NAME), "r") as f:
+                config_dict = json.load(f)
+                config_dict.pop("processor_class")
+
+            with open(os.path.join(tmpdirname, PROCESSOR_NAME), "w") as f:
+                f.write(json.dumps(config_dict))
 
             # drop `processor_class` in feature extractor
             with open(os.path.join(tmpdirname, FEATURE_EXTRACTOR_NAME), "r") as f:
